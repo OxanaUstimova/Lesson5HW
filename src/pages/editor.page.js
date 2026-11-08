@@ -7,6 +7,7 @@ export class EditorPage {
     this.aboutInput = page.getByRole('textbox', { name: 'What\'s this article about?' });
     this.articleInput = page.getByRole('textbox', { name: 'Write your article (in' });
     this.publishPush = page.getByRole('button', { name: 'Publish Article' });
+    this.deleteArticleButton = page.getByRole('button', { name: 'Delete Article' }).first();;
 
      // Локаторы настроек
     this.settingsPasswordInput = page.getByRole('textbox', { name: 'Password' });
