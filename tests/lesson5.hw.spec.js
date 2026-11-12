@@ -6,32 +6,37 @@ import { EditorPage } from '../src/pages/editor.page';
 import { faker } from '@faker-js/faker';
 
 test.describe('Conduit RealWorld Tests (POM)', () => {
+  // (Жесткая последовательность тестов):
+  test.describe.configure({ mode: 'serial' });
+
 let mainPage;
 let loginPage;
 let editorPage;
+const currentPassword = 'Test12345';
+const userName = 'oxanochka1@guru.ru';
 
 test.beforeEach(async ({ page }) => {
-mainPage = new MainPage(page);
-loginPage = new LoginPage(page);
-editorPage = new EditorPage(page);
+  mainPage = new MainPage(page);
+  loginPage = new LoginPage(page);
+  editorPage = new EditorPage(page);
 
-await mainPage.open();
-await loginPage.login('oxanochka@guru.ru', 'Test12345');
+  await mainPage.open();
+  await loginPage.login(userName, currentPassword);
 });
 
 //1. Написание статьи (Предусловие: Пользователь ранее регистрировался)
 test('test1 НАписание статьи', async () => {
     // Генерируем уникальные данные перед началом шагов
-const randomTitle = faker.lorem.sentence(3); // Случайное название из 3 слов 
-const randomAbout = faker.lorem.sentence(5); // Случайное описание из 5 слов
-const randomBody = faker.lorem.paragraph();  // Случайный целый абзац текста
+    const randomTitle = faker.lorem.sentence(3); // Случайное название из 3 слов 
+    const randomAbout = faker.lorem.sentence(5); // Случайное описание из 5 слов
+    const randomBody = faker.lorem.paragraph();  // Случайный целый абзац текста
 
-// Переходим на страницу создания статьи
-await mainPage.newArticleTab.click(); 
-//заполняем поля для статьи
-await editorPage.createArticle(randomTitle, randomAbout, randomBody);     
-//Проверка результата. Появилась кнопка "Удалить"
- await expect(editorPage.deleteArticleButton).toBeVisible();
+    // Переходим на страницу создания статьи
+    await mainPage.newArticleTab.click(); 
+    //заполняем поля для статьи
+    await editorPage.createArticle(randomTitle, randomAbout, randomBody);     
+    //Проверка результата. Появилась кнопка "Удалить"
+    await expect(editorPage.deleteArticleButton).toBeVisible();
 });
 // 2. Добавление понравившейся статьи в "Избранное" (Предварительные условия - пользователь авторизован)
 test('test2 добавление статьи в избранное через лайк', async ({ page }) => {
@@ -79,14 +84,31 @@ test('test2 добавление статьи в избранное через �
   });
 
 //5. смена пароля в настройках (Предусловие: Пользователь ранее зарегистрирован)
-test('test5 смена пароля в настройках', async () => {
+ test('test5 смена пароля в настройках', async ({ page }) => {
+    const temporaryPassword = 'NewPassword123';
+//    const temporaryPassword = currentPassword;
 
-await mainPage.goToSettings(); // метод перехода в настройки из MainPage
-//Передаем в метод  новый пароль
-await editorPage.updatePassword('Test12345');
+    // Меняем пароль на временный
+    await mainPage.goToSettings(); 
+    await editorPage.updatePassword(temporaryPassword);
+    await expect(editorPage.logoutTab).toBeHidden();
+    await editorPage.logout();
+    await expect(mainPage.globalFeedTab).toBeVisible();
+    await expect(mainPage.yourFeedTab).toBeHidden();
+    await expect(loginPage.loginLink).toBeVisible();
     
- await expect(editorPage.settingsHeading).toContainText('Your Settings');
-});
+    // Переходим на форму входа и проверяем новый пароль (экспект куратора)
+    await loginPage.loginLink.click();
+    await expect(loginPage.emailInput).toBeVisible();
+    await loginPage.emailInput.fill(userName);
+    await loginPage.passwordInput.fill(temporaryPassword);
+    await loginPage.loginButton.click();
+    await expect(mainPage.userProfileLink).toBeVisible();
+
+    // Возвращаем старый пароль на место для будущих запусков
+    await mainPage.goToSettings(); 
+    await editorPage.updatePassword(currentPassword);
+    
+  });
 
 });
-

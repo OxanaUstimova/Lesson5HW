@@ -9,6 +9,12 @@ export class EditorPage {
     this.publishPush = page.getByRole('button', { name: 'Publish Article' });
     this.deleteArticleButton = page.getByRole('button', { name: 'Delete Article' }).first();;
 
+    //обновление  и настройки
+    this.userProfileLink = page.locator('div.nav-link', { hasText: 'Оксаночка' });
+    this.profileTab = page.getByRole('link', { name: 'Profile' });
+    this.settingsTab = page.getByRole('link', { name: 'Settings' });
+    this.logoutTab = page.getByRole('link', { name: 'Logout' });
+
      // Локаторы настроек
     this.settingsPasswordInput = page.getByRole('textbox', { name: 'Password' });
     this.updateSettingsButton = page.getByRole('button', { name: 'Update Settings' });
@@ -28,8 +34,16 @@ export class EditorPage {
 
   //  метод для создания пароля
   async updatePassword(newPassword) {
-     await this.settingsPasswordInput.fill(newPassword); // Вставляем то, что прилетело в кармашек
+    await this.updateSettingsButton.waitFor({state: 'visible'});
+    await this.settingsPasswordInput.fill(newPassword); // Вставляем то, что прилетело в кармашек
     await this.updateSettingsButton.click();
- 
+    await this.updateSettingsButton.waitFor({state: 'hidden'});
   }
+
+  async logout() {
+    await this.userProfileLink.click();
+    await this.logoutTab.waitFor({state: 'visible'});
+    await this.logoutTab.click();
+  }
+
 }

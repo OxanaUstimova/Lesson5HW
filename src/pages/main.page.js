@@ -1,7 +1,7 @@
-    const URL = 'https://realworld.qa.guru/';
+const URL = 'https://realworld.qa.guru/';
   
-    export class MainPage  {
-    constructor (page) {
+export class MainPage  {
+  constructor (page) {
     // техническое описание страницы браузера
     this.page = page;
 
@@ -10,11 +10,13 @@
 
      //обновление  и настройки
     this.userProfileLink = page.getByText('Оксаночка');
-    this.profileTab = page.getByRole('link', { name: ' Profile' });
-    this.settingsTab = page.getByRole('link', { name: ' Settings' });
+    this.profileTab = page.getByRole('link', { name: 'Profile' });
+    this.settingsTab = page.getByRole('link', { name: 'Settings' });
+    this.logoutTab = page.getByRole('link', { name: 'Logout' });
 
     // Навигация по лентам
     this.newArticleTab = page.getByRole('link', { name: ' New Article' });
+    this.yourFeedTab = page.getByRole('button', { name: 'Your Feed' });
     this.globalFeedTab = page.getByRole('button', { name: 'Global Feed' });
     this.favoritedArticlesTab = page.getByRole('link', { name: 'Favorited Articles' });
 
@@ -32,14 +34,15 @@
   } 
 
     // методы бизнесовое описание страницы
-         async open() {
-        await this.page.goto(URL);
-    }
-      async signup(){
-        await this.signLink.click();  
-    }
+  async open() {
+    await this.page.goto(URL);
+  }
 
-    async goToProfile() {
+  async signup(){
+    await this.signLink.click();  
+  }
+
+  async goToProfile() {
     await this.userProfileLink.click();
     await this.profileTab.click();
   } 
@@ -53,8 +56,8 @@
     await this.articleTagButton.click();
   }
 
-    // Переход на страницу настроек
-   async goToSettings() {
+  // Переход на страницу настроек
+  async goToSettings() {
     await this.userProfileLink.click();
     await this.settingsTab.click();
   }
